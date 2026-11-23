@@ -1,0 +1,15 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 2 56 56">
+  <!-- blue body -->
+  <path fill="#6996AD" d="M 0 7 C 3 7 41 4 51 15 C 53 18 54 24 48 29 L 0 42 Z"/>
+  <!-- white belly -->
+  <path fill="#FFF" d="M 48 29 C 43 36 17 56 0 57 L 0 42 Z"/>
+  <!-- eye -->
+  <path fill="#000" stroke="#7B3F00" stroke-width="0.6" d="M 24 31 C 24 33 28 34 30.5 31.1 C 32 28 24 29 24 31 Z"/>
+  <path fill="#FFF" d="M 26 31 A 1 1 0 0 0 28 31 A 1 1 0 0 0 26 31 Z"/>
+  <!-- mouth -->
+  <path fill="#FF91A4" d="M 18 42 C 20 40 36 38 38 38 C 39 38 32 43 32 43 C 30 43 18 43 18 42 Z"/>
+  <!-- teeth -->
+  <path fill="#FFF" d="M 22.313 40.37 C 23 43 24 41 24.5 40 C 25 44 27 41 27.6 39.3 C 29 44 30 41 30.1 38.9 C 31 44 32 41 32.8 38.6 C 33 40 34 42 35 38.3 C 35 39 36 40 36.9 38.1 C 37 39 37 40 38 38 C 35 38 20 40 18 42"/>
+  <!-- black lines (gills) -->
+  <path fill="none" stroke="#000" stroke-width="1" stroke-linecap="round" d="M 13 38 L 8 28 M 9 39 L 5 30 M 5 40 L 1 32 M 2 41 L 0 37"/>
+</svg>
