@@ -1,0 +1,8 @@
+{# Generated report pages (tools/hajlibc/pages.py): title, back link, body. #}
+{% extends "base.html" %}
+{% block title %}{{ title }} · {{ project.name }} · {{ site.name }}{% endblock %}
+{% block main_class %} class="report"{% endblock %}
+{% block main %}
+    <p><a href="{{ back }}">← {{ back_label }}</a></p>
+{{ body }}
+{% endblock %}

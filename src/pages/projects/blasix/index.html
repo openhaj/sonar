@@ -1,0 +1,67 @@
+{% extends "project.html" %}
+{% block actions %}
+      <a class="btn" href="../hajlibc/#tests">Results on hajlibc</a>
+{% endblock %}
+{% block content %}
+    <article class="intro">
+      <p>
+        <strong>blåsix</strong> checks a C library against the standards themselves. There is no
+        reference libc: what a libc must provide, and how it must behave, comes from ISO C and
+        POSIX.1. Any libc can be checked against any edition, whether it is glibc, musl or
+        <a href="../hajlibc/">hajlibc</a>.
+      </p>
+
+      <h2>One run, one target</h2>
+      <p>
+        A run checks one libc against one target: an edition of the C standard (C99 to C23) or of
+        POSIX.1 (2001 to 2024), optionally with POSIX option groups such as XSI, and optionally with
+        the GNU and BSD extensions. The target decides everything: the feature-test macros every test
+        is compiled with, which interfaces are required, and which tests run. A header that hides a
+        required interface under those macros is non-conforming, and it shows.
+      </p>
+
+      <h2>What it measures</h2>
+      <ul>
+        <li><strong>Probes</strong>: for every required interface, a tiny program is built against the
+          libc to see whether the header declares it and the library defines it
+          (<code>ok</code>, <code>undeclared</code> or <code>unlinked</code>). Functions are probed as
+          <code>(name)</code>, which also catches a function-like macro with no real function behind it.</li>
+        <li><strong>Tests</strong>: each runs in its own process and ends as <code>pass</code>,
+          <code>fail</code>, <code>skip</code>, <code>crash</code>, <code>timeout</code>,
+          <code>error</code> or <code>unavailable</code> (did not build). Every test cites the clause
+          of the standard it checks.</li>
+        <li><strong>Conformance per header</strong>: how many required interfaces are present, tested
+          and verified (present and passing every test), with the lists of what is missing, failing
+          or untested.</li>
+        <li><strong>Coverage</strong>: with an instrumented build of the libc, the line coverage of its
+          sources reached by the suite.</li>
+      </ul>
+      <p>
+        Results are written as <code>results.tsv</code> and <code>results.json</code>, one directory
+        per libc and target, so several of them live side by side and two libcs can be compared on the
+        same target.
+      </p>
+
+      <h2>Design</h2>
+      <ul>
+        <li><strong>The test framework does not depend on the libc under test</strong>: raw
+          <code>write(2)</code>, tests registered in their own ELF section rather than with
+          constructors, its own formatting.</li>
+        <li><strong>The runner is built with the host libc</strong>: processes, timeouts, parsing and
+          statistics live outside the libc under test.</li>
+        <li><strong>One process per test, one binary per function</strong>: crashes are isolated, and a
+          missing function is a result, not a build failure.</li>
+      </ul>
+
+      <h2>Testing a libc</h2>
+      <p>
+        A libc is described by a small profile (<code>mk/libc/&lt;name&gt;.mk</code>) that says how to
+        compile and link against it; profiles for the host libc, musl and hajlibc are included.
+      </p>
+      <pre class="code"><code>make run                                # host libc, POSIX.1-2024 + XSI
+make run LIBC=hajlibc                   # hajlibc
+make run LIBC=musl STD=posix-2008 OPTS= # another edition, no XSI
+make compare A=host B=hajlibc           # same target, two libcs
+make coverage LIBC=hajlibc              # line coverage of the libc sources</code></pre>
+    </article>
+{% endblock %}

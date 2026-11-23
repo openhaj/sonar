@@ -1,0 +1,7 @@
+{% extends "base.html" %}
+{% import "macros.html" as ui %}
+{% block title %}Projects · {{ site.name }}{% endblock %}
+{% block main %}
+    <h1>Projects</h1>
+    {{ ui.cards(projects, "") | indent(4) }}
+{% endblock %}

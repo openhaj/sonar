@@ -1,0 +1,23 @@
+{% extends "base.html" %}
+{% import "macros.html" as ui %}
+{% block main %}
+    <section class="hero">
+      <div>
+        <h1>Welcome to <span>openhaj</span></h1>
+        <p class="lead">
+          A free software organization, powered by a blue plush shark.
+          We build open, documented and tested tools.
+        </p>
+        <div class="actions">
+          <a class="btn primary" href="{{ root }}projects/">Browse projects</a>
+          {{ ui.external(site.github, "GitHub") }}
+        </div>
+      </div>
+      <img src="{{ root }}assets/img/blahaj.svg" draggable="false" alt="A blue plush shark swimming" width="380" height="185">
+    </section>
+
+    <section>
+      <h2 class="section-link"><a href="{{ root }}projects/">Projects <span aria-hidden="true">→</span></a></h2>
+      {{ ui.cards(projects | selectattr("featured") | list, root ~ "projects/") | indent(6) }}
+    </section>
+{% endblock %}
