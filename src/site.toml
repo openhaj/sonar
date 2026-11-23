@@ -3,7 +3,7 @@
 
 [site]
 name        = "openhaj"
-description = "openhaj — free software, made with love (and a plush shark)."
+description = "openhaj - free software, made with love (and a plush shark)."
 github      = "https://github.com/openhaj"
 license     = "GPL-3.0"
 lang        = "en"
@@ -47,7 +47,7 @@ featured = true
 slug     = "sonar"
 name     = "sonar"
 status   = "wip"
-tagline  = "The website you're reading right now — openhaj's showcase."
+tagline  = "The website you're reading right now - openhaj's showcase."
 repo     = "https://github.com/openhaj/sonar"
 
 [[projects]]
