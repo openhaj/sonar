@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>{% block title %}hajlibc tracker{% endblock %}</title>
+<link rel="stylesheet" href="{{ root }}static/css/catppuccin.css">
+<link rel="stylesheet" href="{{ root }}static/css/main.css">
+<link rel="icon" href="{{ root }}static/favicon.png" type="image/svg+xml">
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.6.1/dist/chart.umd.min.js"
+        integrity="sha384-Emf5ZVIUiarAdhkgtqK+5/Z5qIvM6QoVrS+qAVtfyZVuD5lIHrac0me485+Antp0"
+        crossorigin="anonymous" defer></script>
+</head>
+<body>
+<header class="site-header">
+  <a href="{{ root }}../" class="brand">← hajlibc</a>
+  <a href="{{ root }}index.html" class="brand">POSIX tracker</a>
+  <nav>
+    <a href="{{ root }}index.html"    class="{{ 'active' if active == 'index' }}">Overview</a>
+    <a href="{{ root }}headers.html"  class="{{ 'active' if active == 'headers' }}">Headers</a>
+    {% for cat in CATEGORIES %}
+      <a href="{{ root }}{{ cat }}.html"
+         class="{{ 'active' if active == cat }}">{{ CATEGORY_LABELS[cat] }}</a>
+    {% endfor %}
+    <a href="{{ root }}versions.html" class="{{ 'active' if active == 'versions' }}">Versions</a>
+  </nav>
+</header>
+<main>
+{% block content %}{% endblock %}
+</main>
+<footer>
+  <p>POSIX reference:
+     <a href="https://pubs.opengroup.org/onlinepubs/9799919799/">
+       pubs.opengroup.org</a></p>
+</footer>
+<script src="{{ root }}static/js/tracker.js" defer></script>
+{% block scripts %}{% endblock %}
+</body>
+</html>

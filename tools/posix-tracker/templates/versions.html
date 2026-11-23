@@ -1,0 +1,41 @@
+{% extends "base.html" %}
+{% block title %}Versions · hajlibc tracker{% endblock %}
+{% block content %}
+<h1>Versions comparison</h1>
+
+<section class="card">
+  <h2>Weighted progress over time</h2>
+  <div class="chart-wrap"><canvas id="versionsChart"></canvas></div>
+</section>
+
+<section class="card">
+  <h2>Per-category progress (one bar per version)</h2>
+  <div class="chart-wrap chart-wrap-lg"><canvas id="categoriesChart"></canvas></div>
+</section>
+
+<table class="data">
+<thead>
+<tr>
+  <th>Version</th>
+  {% for cat in CATEGORIES %}<th>{{ CATEGORY_LABELS[cat] }}</th>{% endfor %}
+  <th>Total weighted %</th>
+</tr>
+</thead>
+<tbody>
+{% for v in versions %}
+{% set r = stats.releases[v] %}
+<tr>
+  <td>{{ v }}</td>
+  {% for cat in CATEGORIES %}
+    <td>{{ r.totals[cat].done }}/{{ r.totals[cat].total }}</td>
+  {% endfor %}
+  <td>{{ "%.1f"|format(r.percent) }}%</td>
+</tr>
+{% endfor %}
+</tbody>
+</table>
+{% endblock %}
+
+{% block scripts %}
+<script type="application/json" id="chart-data">{{ chart_data | tojson }}</script>
+{% endblock %}

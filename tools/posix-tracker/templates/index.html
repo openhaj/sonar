@@ -1,0 +1,37 @@
+{% extends "base.html" %}
+{% from "_macros.html" import progress_bar with context %}
+{% block title %}Overview · hajlibc tracker{% endblock %}
+{% block content %}
+<h1>POSIX Implementation Tracker</h1>
+
+{% if latest %}
+<section class="card">
+  <h2>Latest release · {{ latest }}</h2>
+  {{ progress_bar(release.percent) }}
+  <div class="grid">
+  {% for cat in CATEGORIES %}
+    <div class="stat">
+      <div class="stat-value">{{ release.totals[cat].done }}/{{ release.totals[cat].total }}</div>
+      <div class="stat-label">{{ CATEGORY_LABELS[cat] }}</div>
+    </div>
+  {% endfor %}
+  </div>
+</section>
+{% endif %}
+
+<section class="card">
+  <h2>Overall progress</h2>
+  <div class="chart-wrap"><canvas id="overviewChart"></canvas></div>
+</section>
+
+{% if versions|length > 1 %}
+<section class="card">
+  <h2>Version history</h2>
+  <div class="chart-wrap"><canvas id="historyChart"></canvas></div>
+</section>
+{% endif %}
+{% endblock %}
+
+{% block scripts %}
+<script type="application/json" id="chart-data">{{ chart_data | tojson }}</script>
+{% endblock %}

@@ -1,0 +1,38 @@
+{% macro progress_bar(percent) -%}
+<div class="progress-lg">
+  <div class="bar"><div class="fill" style="width: {{ percent }}%"></div></div>
+  <span class="pct">{{ "%.1f"|format(percent) }}%</span>
+</div>
+{%- endmacro %}
+
+
+{% macro symbol_table(rows) -%}
+<table class="data">
+<thead>
+<tr>
+  <th data-sort="string">Name</th>
+  <th data-sort="string">Header</th>
+  <th data-sort="string">Synopsis</th>
+  <th data-sort="string">Status</th>
+</tr>
+</thead>
+<tbody>
+{% for name, info in rows.missing.items() %}
+<tr>
+  <td><a href="{{ root }}symbols/{{ name|slug }}.html">{{ name }}</a></td>
+  <td><code>&lt;{{ info.header }}&gt;</code></td>
+  <td><code>{{ info.synopsis|truncate(70) }}</code></td>
+  <td><span class="badge badge-red">missing</span></td>
+</tr>
+{% endfor %}
+{% for name, info in rows.implemented.items() %}
+<tr>
+  <td><a href="{{ root }}symbols/{{ name|slug }}.html">{{ name }}</a></td>
+  <td><code>&lt;{{ info.header }}&gt;</code></td>
+  <td><code>{{ info.synopsis|truncate(70) }}</code></td>
+  <td><span class="badge badge-green">done</span></td>
+</tr>
+{% endfor %}
+</tbody>
+</table>
+{%- endmacro %}

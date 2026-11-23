@@ -1,0 +1,48 @@
+{% extends "base.html" %}
+{% from "_macros.html" import progress_bar with context %}
+{% block title %}{{ header_name }} · hajlibc tracker{% endblock %}
+{% block content %}
+<h1>{{ header_name }}</h1>
+<p class="muted">
+  {{ "included" if header.present else "not present" }}
+  {% if header.url %} ·
+    <a href="{{ header.url }}" target="_blank" rel="noopener">POSIX ↗</a>
+  {% endif %}
+</p>
+
+{{ progress_bar(header.percent) }}
+
+{% for cat in CATEGORIES %}
+{% if header.categories[cat].total %}
+<section class="card">
+  <h2>{{ CATEGORY_LABELS[cat] }}
+    <span class="muted" style="font-size:0.9rem;">
+      ({{ header.categories[cat].done }}/{{ header.categories[cat].total }})
+    </span>
+  </h2>
+
+  {% if header.categories[cat].implemented %}
+    <h3 class="sym-subtitle">Implemented</h3>
+    <ul class="sym-list sym-list-plain">
+    {% for name, info in header.categories[cat].implemented.items() %}
+      <li class="ok">
+        <a href="{{ root }}symbols/{{ name|slug }}.html">{{ name }}</a>
+      </li>
+    {% endfor %}
+    </ul>
+  {% endif %}
+
+  {% if header.categories[cat].missing %}
+    <h3 class="sym-subtitle">Missing</h3>
+    <ul class="sym-list sym-list-plain">
+    {% for name, info in header.categories[cat].missing.items() %}
+      <li class="missing">
+        <a href="{{ root }}symbols/{{ name|slug }}.html">{{ name }}</a>
+      </li>
+    {% endfor %}
+    </ul>
+  {% endif %}
+</section>
+{% endif %}
+{% endfor %}
+{% endblock %}

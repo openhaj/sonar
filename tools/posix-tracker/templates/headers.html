@@ -1,0 +1,35 @@
+{% extends "base.html" %}
+{% block title %}Headers · hajlibc tracker{% endblock %}
+{% block content %}
+<h1>Headers · {{ version }}</h1>
+
+<input type="text" id="filter" placeholder="Filter headers…">
+
+<table class="data">
+<thead>
+<tr>
+  <th data-sort="string">Header</th>
+  <th data-sort="number">Present</th>
+  {% for cat in CATEGORIES %}
+    <th data-sort="number">{{ CATEGORY_LABELS[cat] }}</th>
+  {% endfor %}
+  <th data-sort="number">Progress</th>
+</tr>
+</thead>
+<tbody>
+{% for name, h in headers.items() %}
+<tr>
+  <td><a href="{{ root }}headers/{{ name|slug }}.html">{{ name }}</a></td>
+  <td data-value="{{ 1 if h.present else 0 }}">{{ "✔" if h.present else "-" }}</td>
+  {% for cat in CATEGORIES %}
+    <td data-value="{{ h.categories[cat].done }}">{{ h.categories[cat].done }}/{{ h.categories[cat].total }}</td>
+  {% endfor %}
+  <td data-value="{{ h.percent }}">
+    <div class="mini-bar"><div class="fill" style="width: {{ h.percent }}%"></div></div>
+    <span>{{ "%.1f"|format(h.percent) }}%</span>
+  </td>
+</tr>
+{% endfor %}
+</tbody>
+</table>
+{% endblock %}

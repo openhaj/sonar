@@ -1,0 +1,17 @@
+# POSIX.1-2024 reference data of the tracker (headers, symbols, their pages).
+#
+# Not in git: an immutable archive, identified by its sha256. main.py fetches
+# it from the first mirror that answers, refuses any other content, and
+# extracts it into .build/datasets/ (see tools/datasets.py).
+#
+# To publish a new version of the data, upload a new archive and update both
+# sha256 and urls here: a commit of the repository always builds with the
+# same data.
+
+name   = "posix-2024"
+sha256 = "87522afca1e88a147faa3397171c53d22370cb613862c5b2ec6cdf149e2c97b1"
+urls   = [
+  "https://github.com/openhaj/sonar/releases/download/posix-data-2024/posix-2024.tar.gz",
+]
+# local copy of the archive (offline, or before it is published)
+env    = "POSIX_DATA_ARCHIVE"

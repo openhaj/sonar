@@ -1,0 +1,82 @@
+{% extends "base.html" %}
+{% block title %}{{ symbol_name }} · hajlibc tracker{% endblock %}
+{% block content %}
+<h1>{{ symbol_name }}</h1>
+<p class="muted">
+  {{ CATEGORY_LABELS.get(symbol.category, symbol.category) }}
+  {% if symbol.header %} ·
+    <a href="{{ root }}headers/{{ symbol.header|slug }}.html">
+      <code>&lt;{{ symbol.header }}&gt;</code>
+    </a>
+  {% endif %}
+  {% if symbol.url %} ·
+    <a href="{{ symbol.url }}" target="_blank" rel="noopener">POSIX ↗</a>
+  {% endif %}
+</p>
+
+{% if symbol.synopsis %}
+<section class="card"><h2>Synopsis</h2>
+  <pre class="synopsis">{{ symbol.synopsis }}</pre>
+</section>
+{% endif %}
+
+{% if symbol.description %}
+<section class="card"><h2>Description</h2>
+  <p class="prose">{{ symbol.description }}</p>
+</section>
+{% endif %}
+
+{% if symbol.return_value %}
+<section class="card"><h2>Return value</h2>
+  <p class="prose">{{ symbol.return_value }}</p>
+</section>
+{% endif %}
+
+{% if symbol.errors %}
+<section class="card"><h2>Errors</h2>
+  <ul class="errno-list">
+  {% for e in symbol.errors %}<li><code>{{ e }}</code></li>{% endfor %}
+  </ul>
+</section>
+{% endif %}
+
+{% if symbol.examples %}
+<section class="card"><h2>Examples</h2>
+  {% for ex in symbol.examples %}<pre class="example">{{ ex }}</pre>{% endfor %}
+</section>
+{% endif %}
+
+{% if symbol.application_usage %}
+<section class="card"><h2>Application usage</h2>
+  <p class="prose">{{ symbol.application_usage }}</p>
+</section>
+{% endif %}
+
+{% if symbol.rationale %}
+<section class="card"><h2>Rationale</h2>
+  <p class="prose">{{ symbol.rationale }}</p>
+</section>
+{% endif %}
+
+{% if symbol.future_directions %}
+<section class="card"><h2>Future directions</h2>
+  <p class="prose">{{ symbol.future_directions }}</p>
+</section>
+{% endif %}
+
+{% if symbol.change_history %}
+<section class="card"><h2>Change history</h2>
+  <p class="prose">{{ symbol.change_history }}</p>
+</section>
+{% endif %}
+
+{% if symbol.see_also %}
+<section class="card"><h2>See also</h2>
+  <p>
+  {% for s in symbol.see_also %}
+    <a href="{{ root }}symbols/{{ s|slug }}.html">{{ s }}</a>{% if not loop.last %}, {% endif %}
+  {% endfor %}
+  </p>
+</section>
+{% endif %}
+{% endblock %}

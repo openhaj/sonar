@@ -1,0 +1,452 @@
+*,
+*::before,
+*::after { box-sizing: border-box; }
+
+html, body { height: 100%; }
+
+body {
+  margin: 0;
+  background: var(--base);
+  color: var(--text);
+  font-family: ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+  line-height: 1.55;
+  font-size: 15px;
+
+  /* Évite le "jump" quand la scrollbar apparaît/disparaît
+     (cause classique de boucle resize + Chart.js) */
+  overflow-y: scroll;
+}
+
+a { color: var(--blue); text-decoration: none; }
+a:hover { color: var(--lavender); text-decoration: underline; }
+
+.muted { color: var(--subtext0); }
+
+code {
+  font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+}
+
+/* --------------------------------------------------------------------------
+   Header / Nav
+   -------------------------------------------------------------------------- */
+.site-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 0.85rem 2rem;
+  background: var(--mantle);
+  border-bottom: 1px solid var(--surface0);
+  position: sticky;
+  top: 0;
+  z-index: 10;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+}
+
+.brand {
+  font-weight: 700;
+  color: var(--mauve);
+  font-size: 1.05rem;
+}
+
+.site-header nav {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.15rem 0.9rem;
+}
+
+.site-header nav a {
+  margin: 0;
+  color: var(--subtext1);
+  font-size: 0.88rem;
+  padding: 0.2rem 0;
+  border-bottom: 2px solid transparent;
+  transition: color 0.15s ease, border-color 0.15s ease;
+}
+
+.site-header nav a:hover {
+  color: var(--mauve);
+  text-decoration: none;
+}
+
+.site-header nav a.active {
+  color: var(--mauve);
+  border-bottom-color: var(--mauve);
+}
+
+/* --------------------------------------------------------------------------
+   Layout
+   -------------------------------------------------------------------------- */
+main {
+  max-width: 1200px;
+  margin: 2rem auto;
+  padding: 0 1.5rem;
+}
+
+h1 { color: var(--mauve); margin-top: 0; }
+h2 { color: var(--lavender); margin-top: 0; }
+
+/* --------------------------------------------------------------------------
+   Cards
+   -------------------------------------------------------------------------- */
+.card {
+  background: var(--mantle);
+  border: 1px solid var(--surface0);
+  border-radius: 0.75rem;
+  padding: 1.25rem 1.5rem;
+  margin-bottom: 1.5rem;
+}
+
+/* --------------------------------------------------------------------------
+   Progress bars
+   -------------------------------------------------------------------------- */
+.progress-lg {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  margin: 0.5rem 0 1rem;
+}
+
+.progress-lg .bar {
+  flex: 1;
+  height: 1.25rem;
+  background: var(--surface0);
+  border-radius: 999px;
+  overflow: hidden;
+}
+
+.progress-lg .fill {
+  height: 100%;
+  background: linear-gradient(90deg, var(--mauve), var(--pink));
+  transition: width 0.4s ease;
+}
+
+.progress-lg .pct {
+  font-weight: 700;
+  color: var(--green);
+  min-width: 4.5rem;
+  text-align: right;
+  font-variant-numeric: tabular-nums;
+}
+
+.mini-bar {
+  display: inline-block;
+  width: 6rem;
+  height: 0.5rem;
+  background: var(--surface0);
+  border-radius: 999px;
+  overflow: hidden;
+  vertical-align: middle;
+  margin-right: 0.5rem;
+}
+
+.mini-bar .fill {
+  height: 100%;
+  background: var(--mauve);
+}
+
+/* --------------------------------------------------------------------------
+   Stats grid
+   -------------------------------------------------------------------------- */
+.grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+  gap: 1rem;
+}
+
+.stat {
+  text-align: center;
+  padding: 1rem;
+  background: var(--crust);
+  border-radius: 0.5rem;
+  border: 1px solid var(--surface0);
+}
+
+.stat-value {
+  font-size: 1.35rem;
+  font-weight: 700;
+  color: var(--mauve);
+  font-variant-numeric: tabular-nums;
+}
+
+.stat-label {
+  color: var(--subtext0);
+  font-size: 0.85rem;
+}
+
+/* --------------------------------------------------------------------------
+   Tables
+   -------------------------------------------------------------------------- */
+table.data {
+  width: 100%;
+  border-collapse: collapse;
+  background: var(--mantle);
+  border-radius: 0.5rem;
+  overflow: hidden;
+}
+
+table.data th,
+table.data td {
+  padding: 0.5rem 0.8rem;
+  text-align: left;
+  border-bottom: 1px solid var(--surface0);
+  font-size: 0.92rem;
+}
+
+table.data th {
+  background: var(--crust);
+  color: var(--lavender);
+  cursor: pointer;
+  user-select: none;
+  white-space: nowrap;
+}
+
+table.data th[data-sort]::after {
+  content: "↕";
+  opacity: 0.4;
+  margin-left: 0.4rem;
+  font-size: 0.8rem;
+}
+
+table.data th[data-sort][data-dir="asc"]::after  { content: "↑"; opacity: 1; }
+table.data th[data-sort][data-dir="desc"]::after { content: "↓"; opacity: 1; }
+
+table.data th:hover { background: var(--surface0); }
+table.data tr:hover td { background: var(--surface0); }
+
+/* --------------------------------------------------------------------------
+   Inputs
+   -------------------------------------------------------------------------- */
+input[type="text"] {
+  background: var(--crust);
+  color: var(--text);
+  border: 1px solid var(--surface0);
+  border-radius: 0.5rem;
+  padding: 0.5rem 0.75rem;
+  margin-bottom: 1rem;
+  width: 100%;
+  max-width: 24rem;
+  font: inherit;
+  transition: border-color 0.15s ease;
+}
+
+input[type="text"]:focus {
+  outline: none;
+  border-color: var(--mauve);
+}
+
+/* --------------------------------------------------------------------------
+   Badges
+   -------------------------------------------------------------------------- */
+.badge {
+  display: inline-block;
+  padding: 0.1rem 0.55rem;
+  border-radius: 999px;
+  font-size: 0.78rem;
+  font-weight: 600;
+}
+
+.badge-green { background: rgba(166, 227, 161, 0.15); color: var(--green); }
+.badge-red   { background: rgba(243, 139, 168, 0.15); color: var(--red); }
+
+/* --------------------------------------------------------------------------
+   Symbol lists
+   -------------------------------------------------------------------------- */
+.sym-list {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+  gap: 0.2rem 1rem;
+}
+
+.sym-list li {
+  font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+  font-size: 0.86rem;
+  padding: 0.1rem 0;
+  border-bottom: 1px dotted transparent;
+}
+
+.sym-list li.ok      { color: var(--green); }
+.sym-list li.missing { color: var(--red); }
+
+.sym-list li.ok::before      { content: "✔ "; }
+.sym-list li.missing::before { content: "✘ "; }
+
+.sym-list li[data-tooltip] {
+  cursor: help;
+  border-bottom-color: var(--surface1);
+}
+
+td[data-tooltip] {
+  cursor: help;
+  border-bottom: 1px dotted var(--surface1);
+}
+
+/* --------------------------------------------------------------------------
+   Tooltip
+   -------------------------------------------------------------------------- */
+.tooltip {
+  position: fixed;
+  z-index: 100;
+  max-width: 520px;
+  padding: 0.75rem 0.9rem;
+  background: var(--crust);
+  border: 1px solid var(--surface1);
+  border-radius: 0.5rem;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.5);
+  font-size: 0.85rem;
+  line-height: 1.45;
+  color: var(--text);
+  pointer-events: none;
+}
+
+.tooltip .tt-header {
+  color: var(--mauve);
+  font-weight: 700;
+  margin-bottom: 0.35rem;
+  font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+}
+
+.tooltip .tt-desc {
+  color: var(--subtext1);
+  font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+  white-space: pre-wrap;
+  word-break: break-word;
+  margin-bottom: 0.4rem;
+}
+
+.tooltip .tt-source {
+  color: var(--overlay1);
+  font-size: 0.78rem;
+}
+
+.tooltip .tt-source a { color: var(--blue); }
+
+/* --------------------------------------------------------------------------
+   Footer
+   -------------------------------------------------------------------------- */
+footer {
+  padding: 2rem;
+  text-align: center;
+  color: var(--overlay1);
+  border-top: 1px solid var(--surface0);
+  margin-top: 3rem;
+  font-size: 0.85rem;
+}
+
+/* --------------------------------------------------------------------------
+   Charts - FIX clignotement
+
+   Règles :
+   - Le wrapper a une hauteur FIXE (Chart.js en responsive mesure le parent).
+   - Le canvas NE DOIT PAS être en position:absolute / inset:0, sinon
+     Chart.js redimensionne le canvas → reflow du parent → il remesure →
+     il redimensionne → boucle infinie (le "clignotement").
+   - On laisse Chart.js gérer width/height inline du canvas.
+   - overflow:hidden empêche le canvas de pousser le layout pendant un resize.
+   -------------------------------------------------------------------------- */
+.chart-wrap {
+  position: relative;
+  width: 100%;
+  height: 420px;
+  min-height: 280px;
+  background: var(--surface0);
+  border-radius: 0.5rem;
+  overflow: hidden;
+  /* Évite que le canvas force un reflow pendant la mesure */
+  contain: layout paint;
+}
+
+.chart-wrap > canvas {
+  display: block;
+  max-width: 100%;
+  max-height: 100%;
+}
+/* --------------------------------------------------------------------------
+   Symbol cards & pages
+   -------------------------------------------------------------------------- */
+.synopsis,
+.example {
+  background: var(--crust);
+  border: 1px solid var(--surface0);
+  border-radius: 0.5rem;
+  padding: 0.75rem 1rem;
+  overflow-x: auto;
+  font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+  font-size: 0.88rem;
+  white-space: pre-wrap;
+  word-break: break-word;
+}
+
+.prose {
+  white-space: pre-wrap;
+  word-break: break-word;
+  color: var(--subtext1);
+}
+
+.errno-list {
+  list-style: none;
+  padding: 0;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.4rem;
+}
+
+.errno-list li code {
+  background: var(--crust);
+  border: 1px solid var(--surface0);
+  border-radius: 0.35rem;
+  padding: 0.1rem 0.45rem;
+  font-size: 0.82rem;
+  color: var(--peach);
+}
+
+.tooltip .tt-syn code,
+.tooltip .tt-desc {
+  display: block;
+  font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+  font-size: 0.8rem;
+  color: var(--subtext1);
+  margin-bottom: 0.35rem;
+  white-space: pre-wrap;
+  word-break: break-word;
+}
+
+.tooltip .tt-rv,
+.tooltip .tt-err,
+.tooltip .tt-see {
+  font-size: 0.78rem;
+  color: var(--overlay2);
+  margin-bottom: 0.25rem;
+}
+/* Variante plus haute pour le graph multi-catégories */
+.chart-wrap-lg {
+  height: 520px;
+  min-height: 360px;
+}
+/* Liste de symboles simple : nom + lien, sans tooltip */
+.sym-list-plain li a {
+  color: inherit;
+  text-decoration: none;
+  border-bottom: 1px dotted transparent;
+}
+
+.sym-list-plain li a:hover {
+  text-decoration: underline;
+  border-bottom-color: currentColor;
+}
+
+.sym-subtitle {
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: var(--overlay1);
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  margin: 1rem 0 0.4rem;
+}
+
+.sym-subtitle:first-of-type {
+  margin-top: 0;
+}
