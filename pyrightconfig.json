@@ -1,0 +1,28 @@
+{
+  "include": [
+    "main.py",
+    "tools"
+  ],
+  "exclude": [
+    "**/__pycache__",
+    "tools/posix-tracker/data"
+  ],
+  "executionEnvironments": [
+    {
+      "root": "tools/posix-tracker",
+      "extraPaths": [
+        "tools/posix-tracker"
+      ]
+    },
+    {
+      "root": "."
+    }
+  ],
+  "venvPath": ".",
+  "venv": ".venv",
+  "pythonVersion": "3.12",
+  "typeCheckingMode": "strict",
+  "reportMissingTypeStubs": "none",
+  "enableTypeIgnoreComments": false,
+  "reportUnnecessaryTypeIgnoreComment": "error"
+}
