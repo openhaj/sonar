@@ -4,4 +4,7 @@
 /.venv/
 __pycache__/
 
+# POSIX reference data: an archive outside git, see tools/posix-tracker/posix-data.toml
+/tools/posix-tracker/data/
+
 .DS_Store
