@@ -1,0 +1,7 @@
+[submodule "external/hajlibc"]
+	path = external/hajlibc
+	url = https://github.com/openhaj/hajlibc.git
+	branch = dev
+[submodule "external/blasix"]
+	path = external/blasix
+	url = https://github.com/openhaj/blasix.git
