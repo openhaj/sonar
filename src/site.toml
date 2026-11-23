@@ -1,0 +1,65 @@
+# Site metadata and the list of projects. Cards, project headers and links
+# are all generated from this file: edit a project here, once.
+
+[site]
+name        = "openhaj"
+description = "openhaj — free software, made with love (and a plush shark)."
+github      = "https://github.com/openhaj"
+license     = "GPL-3.0"
+lang        = "en"
+
+# Badge labels, by status
+[status]
+idea     = "idea"
+wip      = "in progress"
+paused   = "paused"
+stable   = "stable"
+archived = "archived"
+
+# One [[projects]] block per project, in display order.
+#   slug     folder under projects/ (src/pages/projects/<slug>/index.html)
+#   featured shown on the home page
+[[projects]]
+slug     = "hajlibc"
+name     = "hajlibc"
+status   = "wip"
+tagline  = "A C standard library written from scratch, for Linux on x86_64 and aarch64."
+repo     = "https://github.com/openhaj/hajlibc"
+featured = true
+
+[[projects]]
+slug     = "hajcrypt"
+name     = "hajcrypt"
+status   = "paused"
+tagline  = "High-performance cryptographic hashes in C: MD5, SHA-256 and Whirlpool."
+repo     = "https://github.com/openhaj/hajcrypt"
+featured = true
+
+[[projects]]
+slug     = "hajserv"
+name     = "hajserv"
+status   = "paused"
+tagline  = "An HTTP/1.1 web server written in C++98."
+repo     = "https://github.com/openhaj/HajServ"
+featured = true
+
+[[projects]]
+slug     = "sonar"
+name     = "sonar"
+status   = "wip"
+tagline  = "The website you're reading right now — openhaj's showcase."
+repo     = "https://github.com/openhaj/sonar"
+
+[[projects]]
+slug     = "blasix"
+name     = "blåsix"
+status   = "wip"
+tagline  = "Conformance tests for C libraries, driven by the ISO C and POSIX specifications."
+repo     = "https://github.com/Moutigll/blasix"
+
+[[projects]]
+slug     = "hajnet"
+name     = "hajnet"
+status   = "paused"
+tagline  = "Low-level networking tools in C, starting with ping."
+repo     = "https://github.com/openhaj/hajnet"

@@ -1,0 +1,43 @@
+{# Layout of every page. Blocks: title, description, head, main.
+    `root` is the relative path to the site root ("./", "../", ...). #}
+<!doctype html>
+<html lang="{{ site.lang }}">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="description" content="{% block description %}{{ site.description }}{% endblock %}">
+  <title>{% block title %}{{ site.name }}{% endblock %}</title>
+  <link rel="icon" type="image/svg+xml" href="{{ root }}assets/img/favicon.svg">
+  <link rel="stylesheet" href="{{ root }}assets/css/style.css">
+  {# Applies the saved / system theme before the first paint. #}
+  <script>try{var t=localStorage.getItem('theme')}catch(e){}document.documentElement.dataset.theme=t||(matchMedia('(prefers-color-scheme: dark)').matches?'dark':'light')</script>
+  <script src="{{ root }}assets/js/site.js" defer></script>
+  {% block head %}{% endblock %}
+</head>
+<body>
+  <header class="site-header">
+    <nav>
+      <a class="brand" href="{{ root }}"><img src="{{ root }}assets/img/favicon.svg" alt="" width="28" height="28">{{ site.name }}</a>
+      <div class="nav-links">
+        <a href="{{ root }}projects/">Projects</a>
+        <a href="{{ site.github }}" target="_blank" rel="noopener noreferrer">GitHub</a>
+      </div>
+    </nav>
+  </header>
+
+  <main{% block main_class %}{% endblock %}>
+{% block main %}{% endblock %}
+  </main>
+
+  {# Pure CSS waves (from HajServ's error pages) #}
+  <div class="waves" aria-hidden="true">
+  {% for i in range(8, 0, -1) %}
+    <svg class="w w{{ i }}" viewBox="0 0 1200 300" preserveAspectRatio="none"><path d="M0 150C100 200 200 200 300 150S500 100 600 150 800 200 900 150 1100 100 1200 150L1200 300 0 300Z"/></svg>
+  {% endfor %}
+  </div>
+
+  <footer class="site-footer">
+    <p>{{ site.name }} · {{ site.license }} · made with 🦈</p>
+  </footer>
+</body>
+</html>

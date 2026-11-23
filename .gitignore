@@ -1,0 +1,7 @@
+# Produced by `python3 main.py` - never committed
+/dist/
+/.build/
+/.venv/
+__pycache__/
+
+.DS_Store

@@ -1,0 +1,23 @@
+{# Page of one project. The project comes from site.toml (by folder name).
+    Blocks: actions (extra buttons), content. #}
+{% extends "base.html" %}
+{% import "macros.html" as ui %}
+{% block title %}{{ project.name }} · {{ site.name }}{% endblock %}
+{% block description %}{{ project.tagline }}{% endblock %}
+{% block main %}
+    <p><a href="../">← All projects</a></p>
+    <div class="project-title">
+      <h1>{{ project.name }}</h1>
+      {{ ui.badge(project.status) }}
+    </div>
+    <p class="tagline">{{ project.tagline }}</p>
+
+    <div class="actions">
+{% if project.repo %}
+      {{ ui.external(project.repo, "Source code", "btn primary") }}
+{% endif %}
+{% block actions %}{% endblock %}
+    </div>
+
+{% block content %}{% endblock %}
+{% endblock %}
