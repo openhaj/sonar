@@ -5,7 +5,7 @@
     python3 main.py build [--only S,..]   build some steps only (see `steps`)
     python3 main.py build --skip tests    everything but the slow test runs
     python3 main.py serve [--port 8000]   preview dist/ in a browser
-    python3 main.py clean                 remove dist/ and .build/
+    python3 main.py clean [--all]         remove dist/ and .build/ (--all: downloads too)
     python3 main.py steps                 list the build steps
 
 Layout:
@@ -52,6 +52,7 @@ class Paths:
     ts_entries: Path = ROOT / "src" / "ts" / "entries"
 
     tracker: Path = ROOT / "tools" / "posix-tracker"
+    posix_data: Path = ROOT / "tools" / "posix-tracker" / "posix-data.toml"
     hajlibc: Path = Path(os.environ.get("HAJLIBC", ROOT / "external" / "hajlibc")).resolve()
     blasix: Path = Path(os.environ.get("BLASIX", ROOT / "external" / "blasix")).resolve()
 
@@ -165,7 +166,7 @@ def build_static() -> None:
     log("static", f"{rendered} pages rendered, {copied} files copied -> {P.dist.relative_to(ROOT)}/")
 
 
-@step("scripts", "type-check src/ts/ and bundle src/ts/entries/*.ts -> dist/assets/js/")
+@step("scripts", "type-check all TypeScript, bundle src/ts/entries/*.ts -> dist/assets/js/")
 def build_scripts() -> None:
     # tsc and esbuild are native binaries, fetched once by tools/scripts.py:
     # no Node.js needed.
@@ -187,11 +188,19 @@ def build_scripts() -> None:
 def build_posix() -> None:
     if not require("posix", P.hajlibc / ".git", "git submodule update --init"):
         return
+    from tools import datasets
+    reference = datasets.ensure(P.posix_data, P.build / "datasets", functools.partial(log, "posix"))
     run("posix", [sys.executable, P.tracker / "run.py", "all"], env={
+        "TRACKER_POSIX_DIR": str(reference),
         "HAJLIBC": str(P.hajlibc),
         "TRACKER_WORK": str(P.build / "posix-tracker"),
         "TRACKER_OUT": str(P.hajlibc_out / "posix"),
     })
+    # the tracker's TypeScript (tools/posix-tracker/ts/), into its pages
+    from tools import scripts
+    if not scripts.bundle([P.tracker / "ts" / "tracker.ts"], P.hajlibc_out / "posix" / "static" / "js",
+                          P.build / "toolchain", functools.partial(log, "posix")):
+        raise SystemExit("posix: bundling the tracker script failed")
 
 
 @step("tests", "run the blåsix test suite on hajlibc, normal and coverage runs -> .build/blasix/")
@@ -272,11 +281,23 @@ def cmd_serve(args: argparse.Namespace) -> None:
             pass
 
 
-def cmd_clean(_: argparse.Namespace) -> None:
-    for d in (P.dist, P.build):
-        if d.exists():
-            shutil.rmtree(d)
-            print(f"removed {d.relative_to(ROOT)}/")
+# Downloads checked by hash (tools, data sets) never go stale: `clean` keeps
+# them unless --all.
+KEPT_DOWNLOADS = ("toolchain", "datasets")
+
+
+def cmd_clean(args: argparse.Namespace) -> None:
+    removed: list[Path] = []
+    if P.dist.exists():
+        removed.append(P.dist)
+    if P.build.exists():
+        if args.all:
+            removed.append(P.build)
+        else:
+            removed += [d for d in P.build.iterdir() if d.name not in KEPT_DOWNLOADS]
+    for d in removed:
+        shutil.rmtree(d) if d.is_dir() else d.unlink()
+        print(f"removed {d.relative_to(ROOT)}{'/' if d.suffix == '' else ''}")
 
 
 def cmd_steps(_: argparse.Namespace) -> None:
@@ -297,7 +318,9 @@ def main() -> None:
     s.add_argument("--port", type=int, default=8000)
     s.set_defaults(fn=cmd_serve)
 
-    sub.add_parser("clean", help="remove dist/ and .build/").set_defaults(fn=cmd_clean)
+    c = sub.add_parser("clean", help="remove dist/ and .build/ (keeps downloaded tools and data)")
+    c.add_argument("--all", action="store_true", help="also remove the downloaded tools and data sets")
+    c.set_defaults(fn=cmd_clean)
     sub.add_parser("steps", help="list the build steps").set_defaults(fn=cmd_steps)
 
     argv = sys.argv[1:]
