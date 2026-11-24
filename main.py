@@ -218,7 +218,7 @@ def build_tests() -> None:
                   f"BUILD_DIR={P.tests_cov}"], check=False)
 
 
-@step("hajlibc", "hajlibc pages: data.js, tests/, coverage/, docs/ -> dist/projects/hajlibc/")
+@step("hajlibc", "hajlibc pages: data.js, tests/, coverage/, docs/ -> dist/projects/hajlibc/", needs_venv=True)
 def build_hajlibc() -> None:
     if not require("hajlibc", P.hajlibc / "include", "git submodule update --init"):
         return
@@ -226,10 +226,12 @@ def build_hajlibc() -> None:
     written = hajlibc.build(
         site=site(),
         hajlibc=P.hajlibc,
+        blasix=P.blasix,
         tests_dir=P.tests_run / "hajlibc",
         coverage_dir=P.tests_cov / "hajlibc",
         posix_dir=P.hajlibc_out / "posix",
         out=P.hajlibc_out,
+        warn=functools.partial(warn, "hajlibc"),
     )
     log("hajlibc", ", ".join(written))
 

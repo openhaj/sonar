@@ -98,52 +98,68 @@ function fillPosix(fill: Fill, posix: PosixSummary): void {
 function fillTests(fill: Fill, tests: TestSummary): void {
   const s = tests.summary;
   const count = (key: string): number => s[key] ?? 0;
+  const verdict = (key: string): number => tests.verdicts[key] ?? 0;
   const failing = count('fail') + count('crash') + count('timeout') + count('error');
-  const notBuilt = count('unavailable');
 
   fill.text.set(
     'tests-intro',
-    `${plural(tests.total, 'test')} (${tests.checks} checks) on ${plural(tests.functions, 'function')}, ` +
-      `run by blåsix against ${tests.target} - ${failing ? `${failing} failing` : 'all passing'}` +
-      `${notBuilt ? `, ${notBuilt} not built` : ''}, ${shortDate(tests.generated)}.`,
+    `${plural(tests.total, 'test')} (${tests.checks} checks) on the ${tests.interfaces} interfaces ` +
+      `${tests.target} requires, run by blåsix - ${failing ? `${failing} failing` : 'none failing'}, ` +
+      `${verdict('missing')} interfaces not implemented yet, ${shortDate(tests.generated)}.`,
   );
 
-  const tiles: readonly [string, number, string][] = [
-    ['pass', count('pass'), 'pass'],
-    ['fail', failing, 'fail'],
-    ['skip', count('skip'), 'skip'],
-    ['interfaces', tests.interfaces, 'required interfaces'],
-    ['present', tests.probes['present'] ?? 0, 'interfaces present'],
+  const tiles: readonly [string, number, string, string][] = [
+    ['v-verified', verdict('verified'), 'verified', 'present, tests ran and every one passed'],
+    ['v-failing', verdict('failing'), 'failing', 'a test failed'],
+    ['v-missing', verdict('missing'), 'interfaces not implemented', 'not declared by the header or not defined by the library'],
+    ['v-untested', verdict('untested') + verdict('unbuilt') + verdict('broken'), 'no result', 'untested, or its tests did not build'],
+    ['pass', count('pass'), 'tests passed', 'every check passed'],
+    ['fail', failing, 'tests failed', 'fail, crash, timeout or error'],
+    ['skip', count('skip'), 'tests skipped', 'could not run here (environment)'],
+    ['unimplemented', count('unimplemented'), 'tests not implemented', 'could not run: the libc lacks what it needs'],
   ];
   fill.html.set(
     'tests-tiles',
-    tiles.map(([cls, value, label]) => `<div class="tile ${cls}"><b>${value}</b><span>${label}</span></div>`).join(''),
+    tiles
+      .map(([cls, value, label, help]) => `<div class="tile ${cls}" title="${esc(help)}"><b>${value}</b><span>${esc(label)}</span></div>`)
+      .join(''),
   );
 
-  const rows = Object.entries(tests.headers)
-    .map(([header, c]) => {
-      const required = c.required ?? 0;
-      const verified = c.verified ?? 0;
-      const share = required ? (100 * verified) / required : 0;
-      return `<tr><td><code>${esc(header)}</code></td><td class="num">${verified} / ${required}</td><td>${meter(share)}</td></tr>`;
+  const rows = tests.headers
+    .map((h) => {
+      const share = h.required ? (100 * h.verified) / h.required : 0;
+      return (
+        `<tr><td><a href="tests/${esc(h.slug)}.html"><code>${esc(h.header)}</code></a></td>` +
+        `<td class="num">${h.verified} / ${h.required}</td><td>${meter(share)}</td></tr>`
+      );
     })
     .join('');
   fill.html.set(
     'tests-headers',
     `<table class="mini"><tbody>${rows}</tbody></table>` +
-      `<p class="muted small">Verified: present and passing all its tests.</p>`,
+      `<p class="muted small">Verified: present, and every test of it ran and passed.</p>`,
   );
 }
 
 function fillCoverage(fill: Fill, coverage: CoverageSummary): void {
-  fill.text.set('cov-total', percent(coverage.percent));
-  fill.width.set('cov-total', coverage.percent);
-  fill.text.set('cov-detail', `${coverage.hit} of ${coverage.lines} lines executed by the tests`);
-  const rows = Object.entries(coverage.dirs)
-    .sort((a, b) => b[1].lines - a[1].lines)
-    .map(([dir, d]) => `<tr><td><code>${esc(dir)}/</code></td><td class="num">${percent(d.percent, 0)}</td><td>${meter(d.percent)}</td></tr>`)
+  fill.text.set('cov-total', percent(coverage.lines.percent));
+  fill.width.set('cov-total', coverage.lines.percent);
+  fill.text.set(
+    'cov-detail',
+    `${coverage.lines.hit} of ${coverage.lines.found} lines of the ${coverage.files} files of the library ` +
+      `run by the tests · functions ${percent(coverage.functions.percent, 0)} · branches ${percent(coverage.branches.percent, 0)}`,
+  );
+  const rows = [...coverage.categories]
+    .sort((a, b) => b.lines.found - a.lines.found)
+    .slice(0, 10)
+    .map(
+      (c) =>
+        `<tr><td><a href="coverage/${esc(c.slug)}.html"><code>${esc(c.name)}</code></a></td>` +
+        `<td class="num">${percent(c.lines.percent, 0)}</td><td>${meter(c.lines.percent)}</td></tr>`,
+    )
     .join('');
-  fill.html.set('cov-dirs', `<table class="mini"><tbody>${rows}</tbody></table>`);
+  const more = coverage.categories.length > 10 ? `<p class="muted small">The ${coverage.categories.length - 10} smaller categories are in the report.</p>` : '';
+  fill.html.set('cov-dirs', `<table class="mini"><tbody>${rows}</tbody></table>${more}`);
 }
 
 function fillDocs(fill: Fill, docs: DocsSummary): void {

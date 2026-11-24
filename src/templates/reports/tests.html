@@ -1,0 +1,97 @@
+{# tests/index.html: the recap of a blåsix run (tools/hajlibc/tests_pages.py) #}
+{% extends "report.html" %}
+{% import "reports/macros.html" as r %}
+{% block report %}
+    <h1>Tests</h1>
+    <p class="tagline">
+      {{ run.total }} tests ({{ run.checks }} checks) on {{ run.interfaces }} interfaces required by
+      {{ run.target }}{% if run.mode %} ({{ run.mode }} mode){% endif %}, run by
+      <a href="../../blasix/">blåsix</a>{% if blasix.commit_short %} <code>{{ blasix.commit_short }}</code>{% endif %}
+      against hajlibc <code>{{ repo.commit_short }}</code> · {{ date }}.
+    </p>
+
+    <h2>Interfaces</h2>
+    <p class="muted">What the target requires, each judged by blåsix from its probes and its tests.</p>
+    {{ r.tiles(verdicts, "v-") }}
+
+    <h2>Tests</h2>
+    {{ r.tiles(tiles) }}
+{% if unbuilt.unimplemented or unbuilt.build %}
+    <p class="muted small">
+      Test units that did not build against hajlibc:
+      {% if unbuilt.unimplemented %}{{ unbuilt.unimplemented }} because the interface is not implemented{% endif %}
+      {%- if unbuilt.unimplemented and unbuilt.build %}, {% endif %}
+      {% if unbuilt.build %}<b>{{ unbuilt.build }} build error{{ "s" if unbuilt.build > 1 }}</b>{% endif %}
+      (details on each header's page).
+    </p>
+{% endif %}
+
+    <h2>Per header</h2>
+    <div class="table-wrap"><table class="headers">
+      <thead><tr>
+        <th>Header</th><th class="num">Required</th><th class="num">Present</th><th class="num">Verified</th>
+        <th class="num">Failing</th><th class="num">Not impl.</th><th class="num">Untested</th><th></th>
+      </tr></thead>
+      <tbody>
+{% for h in headers %}
+        <tr>
+          <td><a href="{{ h.slug }}.html"><code>&lt;{{ h.header }}&gt;</code></a></td>
+          <td class="num">{{ h.required }}</td>
+          <td class="num">{{ h.present }}</td>
+          <td class="num"><b>{{ h.verified }}</b></td>
+          <td class="num{{ ' bad' if h.failing }}">{{ h.failing }}</td>
+          <td class="num">{{ h.missing }}</td>
+          <td class="num">{{ h.untested + h.unbuilt + h.broken }}</td>
+          <td>{{ r.stack(h) }}</td>
+        </tr>
+{% endfor %}
+      </tbody>
+    </table></div>
+    <p class="legend small">
+      <span class="key verified"></span>verified <span class="key failing"></span>failing
+      <span class="key missing"></span>not implemented <span class="key unbuilt"></span>not built
+      <span class="key untested"></span>untested
+    </p>
+
+{% if failures %}
+    <h2 id="failing">Failing tests <span class="count">{{ failures | length }}</span></h2>
+    <ul class="failures">
+{% for f in failures %}
+      <li>
+        {{ r.status(f.status, f.label) }}
+        <a href="{{ f.href }}"><code>{{ f.interface }}</code> · {{ f.test }}</a>
+        <span class="muted small mono">{{ f.summary }}</span>
+      </li>
+{% endfor %}
+    </ul>
+{% endif %}
+
+    <h2 id="find">Find an interface</h2>
+    <div data-finder-scope>
+      <div class="finder" data-finder>
+        <input type="search" data-finder-input placeholder="strlen, size_t, isalpha_l…" aria-label="Search an interface" autocomplete="off">
+      </div>
+      {{ r.filters("verdict", [
+           ("verified", "verified", run.verdicts.verified),
+           ("failing", "failing", run.verdicts.failing),
+           ("missing", "not implemented", run.verdicts.missing),
+           ("broken", "link error", run.verdicts.broken),
+           ("unbuilt", "build error", run.verdicts.unbuilt),
+           ("untested", "untested", run.verdicts.untested)]) }}
+      <div class="table-wrap"><table>
+        <thead><tr><th>Interface</th><th>Header</th><th>Kind</th><th>Verdict</th><th class="num">Tests</th></tr></thead>
+        <tbody>
+{% for i in finder %}
+          <tr data-row="{{ i.search }}" data-verdict="{{ i.verdict }}">
+            <td><a href="{{ i.href }}"><code>{{ i.name }}</code></a></td>
+            <td><code class="muted">&lt;{{ i.header }}&gt;</code></td>
+            <td class="muted">{{ i.kind }}</td>
+            <td>{{ r.verdict(i.verdict, i.label) }}</td>
+            <td class="num">{% if i.tests %}{{ i.passed }} / {{ i.tests }}{% if i.failed %} <span class="bad">({{ i.failed }} failed)</span>{% endif %}{% else %}<span class="muted">-</span>{% endif %}</td>
+          </tr>
+{% endfor %}
+        </tbody>
+      </table></div>
+      <p class="muted" data-finder-empty hidden>No interface matches.</p>
+    </div>
+{% endblock %}

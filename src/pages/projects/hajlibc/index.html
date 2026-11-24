@@ -59,7 +59,7 @@
           <span class="go">Open the full tracker →</span>
         </div>
       </a>
-      <p class="missing" data-missing="posix" hidden>Not generated yet: run <code>make hajlibc-posix</code>.</p>
+      <p class="missing" data-missing="posix" hidden>Not generated yet: run <code>python3 main.py --only posix</code>.</p>
     </section>
 
     <!------- tests ------->
@@ -72,21 +72,22 @@
           <div class="panel">
             <h3>Conformance per header</h3>
             <div data-fill-html="tests-headers"></div>
-            <a class="go" href="tests/">All tests →</a>
+            <a class="go" href="tests/">Every header and interface →</a>
+            <a class="go" href="tests/#find">Find a function →</a>
           </div>
           <div class="panel" data-needs="coverage">
-            <h3>Line coverage</h3>
+            <h3>Coverage of the library</h3>
             <div class="big-stat small">
               <b data-fill="cov-total"></b>
               <span data-fill="cov-detail"></span>
               <span class="meter"><span data-width="cov-total"></span></span>
             </div>
             <div data-fill-html="cov-dirs"></div>
-            <a class="go" href="coverage/">Coverage report →</a>
+            <a class="go" href="coverage/">Coverage per category →</a>
           </div>
         </div>
       </div>
-      <p class="missing" data-missing="tests" hidden>Not generated yet: run <code>make hajlibc-tests hajlibc-site</code>.</p>
+      <p class="missing" data-missing="tests" hidden>Not generated yet: run <code>python3 main.py --only tests,hajlibc</code>.</p>
     </section>
 
     <!------- documentation ------->
@@ -97,7 +98,7 @@
         <div class="chips" data-fill-html="docs-headers"></div>
         <a class="btn" href="docs/">Browse the documentation</a>
       </div>
-      <p class="missing" data-missing="docs" hidden>Not generated yet: run <code>make hajlibc-site</code>.</p>
+      <p class="missing" data-missing="docs" hidden>Not generated yet: run <code>python3 main.py --only hajlibc</code>.</p>
     </section>
 
     <p class="muted generated" data-fill="generated"></p>

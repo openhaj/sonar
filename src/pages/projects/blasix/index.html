@@ -24,17 +24,19 @@
       <ul>
         <li><strong>Probes</strong>: for every required interface, a tiny program is built against the
           libc to see whether the header declares it and the library defines it
-          (<code>ok</code>, <code>undeclared</code> or <code>unlinked</code>). Functions are probed as
+          (<code>ok</code>, <code>undeclared</code>, <code>unlinked</code>, or <code>broken</code> when the
+          link fails for another reason). Functions are probed as
           <code>(name)</code>, which also catches a function-like macro with no real function behind it.</li>
         <li><strong>Tests</strong>: each runs in its own process and ends as <code>pass</code>,
-          <code>fail</code>, <code>skip</code>, <code>crash</code>, <code>timeout</code>,
-          <code>error</code> or <code>unavailable</code> (did not build). Every test cites the clause
-          of the standard it checks.</li>
-        <li><strong>Conformance per header</strong>: how many required interfaces are present, tested
-          and verified (present and passing every test), with the lists of what is missing, failing
-          or untested.</li>
-        <li><strong>Coverage</strong>: with an instrumented build of the libc, the line coverage of its
-          sources reached by the suite.</li>
+          <code>fail</code>, <code>crash</code>, <code>timeout</code>, <code>error</code>,
+          <code>skip</code> (the environment does not allow it), <code>unimplemented</code> (the libc
+          lacks what the test needs) or <code>unavailable</code> (did not build). Every test cites the
+          clause of the standard it checks.</li>
+        <li><strong>Conformance per header</strong>: a verdict on every required interface
+          (verified, failing, not implemented, not built, untested) and how many are present and
+          verified, with the lists of what is missing, failing or untested.</li>
+        <li><strong>Coverage</strong>: with an instrumented build of the libc, the line, function and
+          branch coverage of every file of the library, as an lcov tracefile.</li>
       </ul>
       <p>
         Results are written as <code>results.tsv</code> and <code>results.json</code>, one directory
@@ -62,6 +64,6 @@
 make run LIBC=hajlibc                   # hajlibc
 make run LIBC=musl STD=posix-2008 OPTS= # another edition, no XSI
 make compare A=host B=hajlibc           # same target, two libcs
-make coverage LIBC=hajlibc              # line coverage of the libc sources</code></pre>
+make coverage LIBC=hajlibc              # coverage of the libc (lcov tracefile)</code></pre>
     </article>
 {% endblock %}

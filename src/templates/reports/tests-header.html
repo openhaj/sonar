@@ -1,0 +1,134 @@
+{# tests/<header>.html: the interfaces of one header, their tests and their
+    failures (tools/hajlibc/tests_pages.py) #}
+{% extends "report.html" %}
+{% import "reports/macros.html" as r %}
+
+{% macro message(m) %}
+{% if m.kind == "check" %}
+<div class="msg check">
+  {%- if m.href %}<a class="where" href="{{ m.href }}" target="_blank" rel="noopener noreferrer">{{ m.where }}</a>{% else %}<span class="where">{{ m.where }}</span>{% endif %}
+  <code class="expr">{{ m.check }}</code>
+  {%- if m.detail %}<span class="detail">{{ m.detail }}</span>{% endif %}
+</div>
+{% elif m.kind == "skip" %}
+<div class="msg skip"><b>Skipped:</b> {{ m.text }}</div>
+{% elif m.kind == "unimplemented" %}
+<div class="msg unimplemented"><b>Not implemented by the libc:</b> {{ m.text }}</div>
+{% elif m.kind == "log" %}
+<div class="msg log">{{ m.text }}</div>
+{% else %}
+<div class="msg note">{{ m.text }}</div>
+{% endif %}
+{%- endmacro %}
+
+{% block report %}
+    <h1><code>&lt;{{ row.header }}&gt;</code></h1>
+    <p class="tagline">
+      {{ row.required }} interfaces required by {{ run.target }}{% if row.option %}
+      ({{ row.option }} by an option group){% endif %}{% if row.obsolescent %}, {{ row.obsolescent }} obsolescent{% endif %}:
+      {{ row.verified }} verified, {{ row.failing }} failing, {{ row.missing }} not implemented,
+      {{ row.untested + row.unbuilt + row.broken }} without a result.
+    </p>
+    <div class="stack-big">{{ r.stack(row) }}</div>
+
+    {{ r.tiles(verdicts, "v-") }}
+    {{ r.tiles(tiles) }}
+
+{% if leaks %}
+    <div class="alert">
+      <b>Visible although the target forbids it</b> ({{ run.mode }} mode):
+      {% for x in leaks %}<code>{{ x.name }}</code>{{ ", " if not loop.last }}{% endfor %}.
+      A conforming header only declares what the target requires or reserves.
+    </div>
+{% endif %}
+{% if row.nodiag %}
+    <div class="alert">
+      <b>{{ row.nodiag }} missing diagnostic{{ "s" if row.nodiag > 1 }}</b>: a translation unit the standard
+      requires to be refused was accepted.
+    </div>
+{% endif %}
+
+    <nav class="toc">
+{% for g in groups %}
+      <a href="#{{ g.anchor }}">{{ g.label }} <span>{{ g.interfaces | length }}</span></a>
+{% endfor %}
+    </nav>
+
+    <div data-finder-scope>
+      <div class="finder" data-finder>
+        <input type="search" data-finder-input placeholder="Filter the interfaces…" aria-label="Filter the interfaces" autocomplete="off">
+      </div>
+      {{ r.filters("verdict", [
+           ("verified", "verified", row.verified),
+           ("failing", "failing", row.failing),
+           ("missing", "not implemented", row.missing),
+           ("broken", "link error", row.broken),
+           ("unbuilt", "build error", row.unbuilt),
+           ("untested", "untested", row.untested)]) }}
+
+{% for g in groups %}
+      <section class="group" id="{{ g.anchor }}" data-finder-group>
+        <h2>{{ g.label }}</h2>
+{% for v in g.interfaces %}
+{% set i = v.iface %}
+        <article class="iface {{ i.verdict }}" id="{{ v.anchor }}" data-row="{{ i.name | lower }} {{ i.kind }}" data-verdict="{{ i.verdict }}">
+          <header>
+            <h3><a href="#{{ v.anchor }}"><code>{{ i.name }}</code></a></h3>
+            {{ r.verdict(i.verdict, v.verdict_label, v.verdict_help) }}
+            <span class="meta">
+              {{ i.kind }} · since {{ i.since }}{% if i.option %} · option {{ i.option }}{% endif %}
+              {%- if i.obsolescent %} · obsolescent{% endif %} · {{ v.probe_label }}
+              {%- if i.tests %} · {{ i.passed }}/{{ i.tests }} passed{% endif %}
+              {%- if v.unit_href %} · <a href="{{ v.unit_href }}" target="_blank" rel="noopener noreferrer">{{ i.unit }}.c</a>{% endif %}
+            </span>
+          </header>
+{% if v.failure %}
+          <div class="unit-failure {{ v.failure.reason }}">
+{% if v.failure.reason == "unimplemented" %}
+            <p><b>Not built: <code>{{ i.name }}</code> is not implemented</b> by this libc under this target.</p>
+{% else %}
+            <p><b>Build error</b>: the test unit <code>{{ v.failure.unit }}</code> did not build against the libc.</p>
+{% endif %}
+{% if v.failure.error %}
+            <pre class="log">{{ v.failure.error }}</pre>
+{% endif %}
+{% if v.failure.log %}
+            <details><summary>Full build log</summary><pre class="log">{{ v.failure.log }}</pre></details>
+{% endif %}
+          </div>
+{% endif %}
+{% if v.tests %}
+          <div class="table-wrap"><table class="tests">
+            <tbody>
+{% for t in v.tests %}
+              <tr id="{{ t.anchor }}" class="t-{{ t.status }}">
+                <td>{{ r.status(t.status, t.label) }}</td>
+                <td><a href="#{{ t.anchor }}" class="test-name">{{ t.name }}</a></td>
+                <td class="muted small">{{ t.spec }}{% if t.since %} · since {{ t.since }}{% endif %}{% if t.until %} · until {{ t.until }}{% endif %}</td>
+                <td class="num small">{% if t.failed_checks %}<span class="bad">{{ t.failed_checks }} failed</span> / {% endif %}{{ t.checks }} check{{ "s" if t.checks != 1 }}</td>
+                <td class="num muted small">{{ '%.1f' | format(t.ms) }} ms</td>
+                <td class="small">{% if t.href %}<a href="{{ t.href }}" target="_blank" rel="noopener noreferrer" title="{{ t.where }}">source</a>{% endif %}</td>
+              </tr>
+{% if t.messages or (t.output and t.status != "pass") %}
+              <tr class="detail t-{{ t.status }}"><td colspan="6">
+{% for m in t.messages %}
+                {{ message(m) | indent(16) }}
+{% endfor %}
+{% if t.output and t.status != "pass" %}
+                <details{{ " open" if t.failed }}><summary>Output of the test</summary><pre class="log">{{ t.output }}</pre></details>
+{% endif %}
+              </td></tr>
+{% endif %}
+{% endfor %}
+            </tbody>
+          </table></div>
+{% elif not v.failure %}
+          <p class="muted small">{% if i.verdict == "missing" %}Nothing to run: the libc does not provide it.{% else %}No test for it yet.{% endif %}</p>
+{% endif %}
+        </article>
+{% endfor %}
+      </section>
+{% endfor %}
+      <p class="muted" data-finder-empty hidden>No interface matches.</p>
+    </div>
+{% endblock %}

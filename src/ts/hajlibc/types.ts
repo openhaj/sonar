@@ -36,32 +36,57 @@ export interface RepoInfo {
   readonly sources: { readonly c: number; readonly asm: number; readonly headers: number };
 }
 
-export interface HeaderConformance {
-  readonly required?: number;
-  readonly present?: number;
-  readonly tested?: number;
-  readonly verified?: number;
+export interface HeaderSummary {
+  readonly header: string;
+  readonly slug: string;
+  readonly required: number;
+  readonly present: number;
+  readonly verified: number;
+  readonly failing: number;
+  readonly missing: number;
+  readonly untested: number;
+  readonly unbuilt: number;
 }
 
+/** blåsix's run: statuses of the tests, verdicts on the interfaces. */
 export interface TestSummary {
   readonly target: string;
   readonly libc: string;
+  readonly mode: string;
   readonly generated: string;
+  /** tests per status: pass fail skip unimplemented crash timeout error (+ unavailable units) */
   readonly summary: Readonly<Record<string, number>>;
   readonly total: number;
   readonly checks: number;
   readonly functions: number;
   readonly interfaces: number;
-  readonly probes: Readonly<Record<string, number>>;
-  readonly headers: Readonly<Record<string, HeaderConformance>>;
+  /** interfaces per verdict: verified failing missing broken unbuilt untested */
+  readonly verdicts: Readonly<Record<string, number>>;
+  readonly headers: readonly HeaderSummary[];
+}
+
+export interface Ratio {
+  readonly found: number;
+  readonly hit: number;
+  readonly percent: number;
+}
+
+export interface CategoryCoverage {
+  readonly name: string;
+  readonly slug: string;
+  readonly files: number;
+  readonly lines: Ratio;
+  readonly functions: Ratio;
+  readonly branches: Ratio;
 }
 
 export interface CoverageSummary {
   readonly generated: string;
-  readonly lines: number;
-  readonly hit: number;
-  readonly percent: number;
-  readonly dirs: Readonly<Record<string, { readonly lines: number; readonly hit: number; readonly percent: number }>>;
+  readonly files: number;
+  readonly lines: Ratio;
+  readonly functions: Ratio;
+  readonly branches: Ratio;
+  readonly categories: readonly CategoryCoverage[];
 }
 
 export interface DocsSummary {

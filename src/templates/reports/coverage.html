@@ -1,0 +1,46 @@
+{# coverage/index.html: coverage of hajlibc per category (tools/hajlibc/coverage_pages.py) #}
+{% extends "report.html" %}
+{% import "reports/macros.html" as r %}
+{% block report %}
+    <h1>Coverage</h1>
+    <p class="tagline">
+      Code of hajlibc <code>{{ repo.commit_short }}</code> run by the blåsix test suite: every one of the
+      {{ summary.files }} files compiled into the library counts, run by a test or not · {{ date }}.
+    </p>
+
+    <div class="cov-totals">
+      <div class="big-stat"><b class="{{ r.level(summary.lines.percent) }}">{{ '%.1f' | format(summary.lines.percent) }}%</b>
+        <span>of the lines ({{ summary.lines.hit }} of {{ summary.lines.found }})</span>{{ r.meter(summary.lines.percent, r.level(summary.lines.percent)) }}</div>
+      <div class="big-stat small"><b>{{ '%.1f' | format(summary.functions.percent) }}%</b>
+        <span>of the functions ({{ summary.functions.hit }} of {{ summary.functions.found }})</span>{{ r.meter(summary.functions.percent, r.level(summary.functions.percent)) }}</div>
+      <div class="big-stat small"><b>{{ '%.1f' | format(summary.branches.percent) }}%</b>
+        <span>of the branches ({{ summary.branches.hit }} of {{ summary.branches.found }})</span>{{ r.meter(summary.branches.percent, r.level(summary.branches.percent)) }}</div>
+    </div>
+
+    <h2>Per category</h2>
+    <div data-finder-scope>
+      <div class="finder" data-finder>
+        <input type="search" data-finder-input placeholder="Filter the categories…" aria-label="Filter the categories" autocomplete="off">
+      </div>
+      <div class="table-wrap"><table class="cov">
+        <thead><tr><th>Category</th><th class="num">Files</th><th>Lines</th><th></th><th>Functions</th><th>Branches</th></tr></thead>
+        <tbody>
+{% for c in categories %}
+          <tr data-row="{{ c.category.name }} {{ c.label }}">
+            <td><a href="{{ c.href }}"><code>{{ c.label }}</code></a></td>
+            <td class="num">{{ c.category.files }}</td>
+            <td>{{ r.ratio(c.category.lines) }}</td>
+            <td class="bar">{{ r.meter(c.category.lines.percent, r.level(c.category.lines.percent)) }}</td>
+            <td>{{ r.ratio(c.category.functions) }}</td>
+            <td>{{ r.ratio(c.category.branches) }}</td>
+          </tr>
+{% endfor %}
+        </tbody>
+      </table></div>
+      <p class="muted" data-finder-empty hidden>No category matches.</p>
+    </div>
+    <p class="muted small">
+      Measured with gcov on a copy of hajlibc built with coverage counters; assembly files are not
+      instrumented. The data is also published as an lcov tracefile: <a href="lcov.info">lcov.info</a>.
+    </p>
+{% endblock %}

@@ -1,0 +1,44 @@
+{# coverage/files/<path>.html: one source file, every line marked run or not,
+    as genhtml shows it (tools/hajlibc/coverage_pages.py) #}
+{% extends "report.html" %}
+{% import "reports/macros.html" as r %}
+{% block report_class %} wide{% endblock %}
+{% block report %}
+    <h1 class="path"><code>{{ file.path }}</code></h1>
+    <div class="cov-head">
+      <span>Lines {{ r.ratio(file.lines) }}</span>
+      <span>Functions {{ r.ratio(file.functions) }}</span>
+      <span>Branches {{ r.ratio(file.branches) }}</span>
+{% if href %}
+      <a href="{{ href }}" target="_blank" rel="noopener noreferrer">In the repository</a>
+{% endif %}
+    </div>
+
+{% if functions %}
+    <details class="cov-functions"{{ " open" if functions | length <= 12 }}>
+      <summary>Functions <span class="muted">({{ file.functions.hit }} of {{ file.functions.found }} called)</span></summary>
+      <div class="table-wrap"><table>
+        <thead><tr><th>Function</th><th class="num">Line</th><th class="num">Calls</th></tr></thead>
+        <tbody>
+{% for f in functions %}
+          <tr class="{{ f.cls }}"><td><a href="#L{{ f.fn.line }}"><code>{{ f.fn.name }}</code></a></td>
+            <td class="num">{{ f.fn.line }}</td><td class="num">{{ f.fn.calls }}</td></tr>
+{% endfor %}
+        </tbody>
+      </table></div>
+    </details>
+{% endif %}
+
+{% if uncovered and not missing_source %}
+    <a href="#" class="next-miss" data-next-miss title="Next lines never run (key n)">Next line not run ↓</a>
+{% endif %}
+{% if missing_source %}
+    <p class="missing">The source of this file is not in the repository any more.</p>
+{% else %}
+    <div class="source">
+      <p class="source-legend small"><span class="key hit"></span>run <span class="key miss"></span>never run
+        · counts: times each line ran · branches: <b>+</b> taken, <b>-</b> not taken, <b>#</b> never reached</p>
+      <pre><code>{% for l in lines %}<span class="ln {{ l.cls }}" id="L{{ l.n }}"><a class="n" href="#L{{ l.n }}">{{ l.n }}</a><span class="c">{{ l.hits }}</span><span class="b">{{ l.branches | join("") }}</span><span class="t">{{ l.text }}</span></span>{% endfor %}</code></pre>
+    </div>
+{% endif %}
+{% endblock %}

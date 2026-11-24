@@ -1,0 +1,33 @@
+{# coverage/<category>.html: the files of one category (tools/hajlibc/coverage_pages.py) #}
+{% extends "report.html" %}
+{% import "reports/macros.html" as r %}
+{% block report %}
+    <h1><code>{{ label }}</code></h1>
+    <p class="tagline">
+      {{ category.files }} file{{ "s" if category.files != 1 }} ·
+      lines {{ '%.1f' | format(category.lines.percent) }}% ({{ category.lines.hit }} of {{ category.lines.found }}) ·
+      functions {{ '%.1f' | format(category.functions.percent) }}% · branches {{ '%.1f' | format(category.branches.percent) }}%
+    </p>
+    <div class="cov-totals">{{ r.meter(category.lines.percent, r.level(category.lines.percent)) }}</div>
+
+    <div data-finder-scope>
+      <div class="finder" data-finder>
+        <input type="search" data-finder-input placeholder="Filter the files…" aria-label="Filter the files" autocomplete="off">
+      </div>
+      <div class="table-wrap"><table class="cov">
+        <thead><tr><th>File</th><th>Lines</th><th></th><th>Functions</th><th>Branches</th></tr></thead>
+        <tbody>
+{% for f in files %}
+          <tr data-row="{{ f.name | lower }}">
+            <td><a href="{{ f.href }}"><code>{{ f.name }}</code></a></td>
+            <td>{{ r.ratio(f.file.lines) }}</td>
+            <td class="bar">{{ r.meter(f.file.lines.percent, r.level(f.file.lines.percent)) }}</td>
+            <td>{{ r.ratio(f.file.functions) }}</td>
+            <td>{{ r.ratio(f.file.branches) }}</td>
+          </tr>
+{% endfor %}
+        </tbody>
+      </table></div>
+      <p class="muted" data-finder-empty hidden>No file matches.</p>
+    </div>
+{% endblock %}

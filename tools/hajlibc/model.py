@@ -27,80 +27,178 @@ class RepoInfo(TypedDict):
     sources: SourceCounts
 
 
-# ----- tests -----
+# ----- tests (blåsix's results.json, normal run) -----
 
 
 class TestRecord(TypedDict):
-    """One blåsix test (results.json)."""
+    """One test and its result."""
     category: str
-    function: str
+    function: str           # the interface it is attached to
     test: str
-    status: str
+    unit: str               # <category>[/<group>...]/<function>, or <category>/defs
+    file: str               # source of the test, relative to blåsix
+    line: int
+    status: str             # pass fail skip unimplemented crash timeout error
     checks: int
+    failed: int             # failed checks
     ms: float
+    signal: int
+    exit: int
+    messages: str           # failed checks, skip / not implemented reason, logs
+    output: str             # captured stdout + stderr
+    spec_ref: str
+    since: str
+    until: str
 
 
-class Unavailable(TypedDict):
-    """A test unit that did not build."""
+class UnitFailure(TypedDict):
+    """A test unit that did not build against the libc."""
     category: str
     function: str
+    unit: str
+    reason: str             # "unimplemented" (its interface is missing) or "build"
+    error: str              # the error lines of the build log
+    log: str                # the build log (start)
 
 
-class HeaderConformance(TypedDict):
+class Interface(TypedDict):
+    """A required interface of the target, as blåsix judges it."""
+    header: str
+    category: str
+    name: str
+    kind: str               # function macro type either var
+    since: str
+    option: str             # option group when only required by one
+    requirement: str
+    obsolescent: bool
+    probe: str              # present undeclared unlinked broken unprobed
+    unit: str               # the unit that tests it ("" when none)
+    group: str              # its folder in the suites ("" for <category>/defs or none)
+    built: bool | None      # did its unit build (None: no unit)
+    tests: int
+    passed: int
+    failed: int
+    skipped: int
+    unimplemented: int
+    verdict: str            # missing broken failing verified unbuilt untested
+
+
+class HeaderRow(TypedDict):
+    """blåsix's conformance table, one row per header."""
+    header: str
+    slug: str
+    category: str
     required: int
+    option: int
+    obsolescent: int
     present: int
+    undeclared: int
+    unlinked: int
+    broken: int
+    unprobed: int
     tested: int
     verified: int
+    failing: int
+    missing: int            # interfaces whose verdict is "missing" (not implemented)
+    unbuilt: int
+    untested: int
+    leaked: int
+    nodiag: int
+
+
+class Leak(TypedDict):
+    header: str
+    name: str
+
+
+class HeaderSummary(TypedDict):
+    """One header, as written to data.js."""
+    header: str
+    slug: str
+    required: int
+    present: int
+    verified: int
+    failing: int
+    missing: int
+    untested: int
+    unbuilt: int
 
 
 class TestSummary(TypedDict):
     """Tests, as written to data.js."""
     target: str
     libc: str
+    mode: str
     generated: str
-    summary: dict[str, int]
+    summary: dict[str, int]         # tests per status
     total: int
     checks: int
-    functions: int
-    interfaces: int
-    probes: dict[str, int]
-    headers: dict[str, HeaderConformance]
+    functions: int                  # interfaces with at least one test
+    interfaces: int                 # required by the target
+    verdicts: dict[str, int]        # interfaces per verdict
+    headers: list[HeaderSummary]
 
 
 class TestReport(TypedDict):
     summary: TestSummary
     tests: list[TestRecord]
-    unavailable: list[Unavailable]
+    unavailable: list[UnitFailure]
+    interfaces: list[Interface]
+    conformance: list[HeaderRow]
+    leaks: list[Leak]
 
 
-# ----- coverage -----
+# ----- coverage (lcov tracefile of blåsix's coverage run) -----
+
+
+class Ratio(TypedDict):
+    found: int
+    hit: int
+    percent: float
+
+
+class FunctionCoverage(TypedDict):
+    name: str
+    line: int
+    calls: int
 
 
 class FileCoverage(TypedDict):
-    file: str
-    lines: int
-    hit: int
-    percent: float
+    """One source file compiled into the library."""
+    path: str                       # relative to the hajlibc repository
+    category: str                   # src/<category>/..., or "include"
+    lines: Ratio
+    functions: Ratio
+    branches: Ratio
+    hits: dict[int, int]            # executable line -> times run
+    branch_hits: dict[int, list[int | None]]   # line -> each branch: taken (None: never reached)
+    function_list: list[FunctionCoverage]
 
 
-class LineCounts(TypedDict):
-    lines: int
-    hit: int
-    percent: float
+class CategoryCoverage(TypedDict):
+    """A category, as written to data.js."""
+    name: str
+    slug: str
+    files: int
+    lines: Ratio
+    functions: Ratio
+    branches: Ratio
 
 
 class CoverageSummary(TypedDict):
     """Coverage, as written to data.js."""
     generated: str
-    lines: int
-    hit: int
-    percent: float
-    dirs: dict[str, LineCounts]
+    files: int
+    lines: Ratio
+    functions: Ratio
+    branches: Ratio
+    categories: list[CategoryCoverage]
 
 
 class CoverageReport(TypedDict):
     summary: CoverageSummary
     files: list[FileCoverage]
+    tracefile: str                  # the lcov tracefile read
 
 
 # ----- docs -----

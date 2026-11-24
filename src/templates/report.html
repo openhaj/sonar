@@ -1,8 +1,20 @@
-{# Generated report pages (tools/hajlibc/pages.py): title, back link, body. #}
+{# Generated report pages (tools/hajlibc): a title, a breadcrumb trail
+    (`crumbs`: href, label) and the page: the `report` block of a template
+    of reports/, or a ready-made `body`. report.js adds the search boxes
+    ([data-finder]) and the status filters ([data-filter]). #}
 {% extends "base.html" %}
 {% block title %}{{ title }} · {{ project.name }} · {{ site.name }}{% endblock %}
-{% block main_class %} class="report"{% endblock %}
+{% block head %}
+  <script src="{{ root }}assets/js/report.js" defer></script>
+{% endblock %}
+{% block main_class %} class="report{% block report_class %}{% endblock %}"{% endblock %}
 {% block main %}
-    <p><a href="{{ back }}">← {{ back_label }}</a></p>
+    <nav class="crumbs" aria-label="Breadcrumb">
+{% for c in crumbs %}
+      <a href="{{ c.href }}">{{ c.label }}</a><span aria-hidden="true">/</span>
+{% endfor %}
+    </nav>
+{% block report %}
 {{ body }}
+{% endblock %}
 {% endblock %}

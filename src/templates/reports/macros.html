@@ -1,0 +1,53 @@
+{# Pieces of the report pages. Import with: {% import "reports/macros.html" as r %} #}
+
+{# A test status (pass, fail, skip, unimplemented, ...) #}
+{% macro status(key, label, help="") %}
+<span class="status {{ key }}"{% if help %} title="{{ help }}"{% endif %}>{{ label }}</span>
+{%- endmacro %}
+
+{# The verdict on an interface (verified, failing, missing, ...) #}
+{% macro verdict(key, label, help="") %}
+<span class="verdict {{ key }}"{% if help %} title="{{ help }}"{% endif %}>{{ label }}</span>
+{%- endmacro %}
+
+{# Counters with what they mean on hover #}
+{% macro tiles(items, prefix="") %}
+<div class="tiles">
+{% for t in items %}
+  <div class="tile {{ prefix }}{{ t.key }}" title="{{ t.help }}"><b>{{ t.value }}</b><span>{{ t.label }}</span></div>
+{% endfor %}
+</div>
+{%- endmacro %}
+
+{# Share of each verdict among the required interfaces of a header #}
+{% macro stack(row) %}
+{% set total = row.required or 1 %}
+<span class="stack" title="{{ row.verified }} verified, {{ row.failing }} failing, {{ row.missing }} not implemented, {{ row.unbuilt + row.broken }} not built, {{ row.untested }} untested">
+  {%- for key, n in [("verified", row.verified), ("failing", row.failing), ("missing", row.missing), ("unbuilt", row.unbuilt + row.broken), ("untested", row.untested)] if n -%}
+  <span class="{{ key }}" style="width:{{ '%.2f' | format(100 * n / total) }}%"></span>
+  {%- endfor -%}
+</span>
+{%- endmacro %}
+
+{# A progress bar #}
+{% macro meter(percent, cls="") %}
+<span class="meter {{ cls }}"><span style="width:{{ '%.1f' | format([0, [percent, 100] | min] | max) }}%"></span></span>
+{%- endmacro %}
+
+{# Class of a coverage percentage: high, medium, low #}
+{% macro level(percent) %}{{ "high" if percent >= 80 else "medium" if percent >= 50 else "low" }}{% endmacro %}
+
+{# "hit / found" and its percentage, for lines, functions or branches #}
+{% macro ratio(x) %}
+{% if x.found %}<span class="pct {{ level(x.percent) }}">{{ '%.1f' | format(x.percent) }}%</span> <span class="muted small">{{ x.hit }}/{{ x.found }}</span>{% else %}<span class="muted">-</span>{% endif %}
+{%- endmacro %}
+
+{# Buttons filtering [data-row] elements by their data-<attr> (report.js) #}
+{% macro filters(attr, items, all_label="All") %}
+<div class="filters" role="group" data-filter="{{ attr }}">
+  <button type="button" data-value="" aria-pressed="true">{{ all_label }}</button>
+{% for key, label, n in items if n %}
+  <button type="button" class="{{ key }}" data-value="{{ key }}" aria-pressed="false">{{ label }} <span>{{ n }}</span></button>
+{% endfor %}
+</div>
+{%- endmacro %}

@@ -15,17 +15,20 @@ HTML/CSS/JS: the site to publish.
 ├── src/                       hand-written site
 │   ├── site.toml              site metadata + the list of projects
 │   ├── templates/             base.html (head, nav, waves, footer),
-│   │                          project.html, report.html, macros.html
+│   │                          project.html, report.html, macros.html,
+│   │                          reports/ (tests and coverage pages)
 │   ├── pages/                 one template per page, path = URL
 │   │   ├── index.html
 │   │   └── projects/<project>/index.html
 │   ├── assets/                css/, img/
 │   └── ts/                    TypeScript, one bundle per entry in dist/assets/js/
-│       ├── entries/           site.ts (every page), hajlibc.ts (hajlibc page only)
+│       ├── entries/           site.ts (every page), hajlibc.ts (hajlibc page only),
+│       │                      report.ts (generated reports: search, filters)
 │       ├── theme.ts           light/dark toggle
 │       ├── sky/               background canvas, one module per layer
 │       ├── boats.ts, easter-egg.ts
-│       └── hajlibc/           fills the hajlibc page from data.js
+│       ├── hajlibc/           fills the hajlibc page from data.js
+│       └── report/            search boxes, filters, coverage source navigation
 ├── tools/                     driven by main.py
 │   ├── render.py              renders src/pages/ (and reports) with the templates
 │   ├── scripts.py             fetches the native tsc / esbuild, type-checks, bundles
@@ -33,7 +36,8 @@ HTML/CSS/JS: the site to publish.
 │   │                          posix-data.toml names its reference data)
 │   ├── datasets.py            fetches data sets kept outside git, checked by sha256
 │   └── hajlibc/               data.js, tests, coverage and docs pages
-│                              (model, inputs, docs, pages)
+│                              (model, inputs, lcov, docs, pages,
+│                              tests_pages, coverage_pages)
 ├── external/                  git submodules: the projects the site reports on
 │   ├── hajlibc/               github.com/openhaj/hajlibc (branch dev)
 │   └── blasix/                the blåsix conformance test suite
@@ -85,6 +89,24 @@ Steps, in order:
 | `tests` | runs blåsix on hajlibc: a normal run (probes) and a coverage run | `.build/blasix/` |
 | `hajlibc` | reads the above and the headers' doc comments | `dist/projects/hajlibc/{data.js,tests,coverage,docs}` |
 
+The reports, under `dist/projects/hajlibc/`:
+
+- `tests/`: a recap (verdict on each required interface, per header, the
+  failing tests, a search over every interface) and one page per header,
+  grouped like blåsix's suites, with every test, its spec reference, its
+  source, and why it failed (failed check, expected and actual values,
+  output) or did not run (skipped, not implemented, build log of a unit
+  that did not build). Statuses and verdicts are blåsix's own
+  (`results.json`): nothing is recomputed, only arranged;
+- `coverage/`: line, function and branch coverage per category
+  (`src/<category>/`, public headers), one page per category, one per
+  source file with every line marked run or not (as genhtml), and the
+  lcov tracefile itself (`lcov.info`). Every file compiled into the
+  library counts, run by the tests or not.
+
+Search boxes and filters follow the URL: `tests/?q=strlen`,
+`tests/string-h.html?verdict=failing`.
+
 Nothing on the hajlibc pages is written by hand: numbers, versions, commit,
 headers and documentation all come from the repository and the tools. To
 follow a newer hajlibc: `git submodule update --remote external/hajlibc`
@@ -108,7 +130,8 @@ the same data.
   is reproducible: same files, same bytes), publish it under a new name, and
   update `sha256` and `urls` in the manifest.
 
-Requirements: Python 3.12+, `git`, `make`, a C compiler and `gcov-tool`.
+Requirements: Python 3.12+, `git`, `make`, a C compiler (GCC 12 or later
+for coverage), `gcov` and `gcov-tool`.
 
 All the Python is typed and checked in strict mode (`pyrightconfig.json`,
 with `type: ignore` comments disabled): run `pyright` (or `basedpyright`)
