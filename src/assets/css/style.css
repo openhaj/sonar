@@ -288,6 +288,10 @@ code {
 .project-title { display: flex; align-items: center; gap: 0.75rem; }
 .project-title h1 { margin: 0; }
 .tagline { color: var(--muted); font-size: 1.1rem; }
+.readme-badges { display: flex; flex-wrap: wrap; gap: 0.4rem; margin: 0.25rem 0 0; }
+.readme-badges a, .readme-badges img { display: block; }
+.readme-badges a { transition: transform 0.15s; }
+.readme-badges a:hover { transform: translateY(-1px); }
 article { max-width: 46rem; }
 
 /* Clickable section heading (e.g. "Projects ->" on the home page) */

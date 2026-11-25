@@ -14,6 +14,7 @@ HTML/CSS/JS: the site to publish.
 ├── requirements.txt           Python packages (for the POSIX tracker)
 ├── src/                       hand-written site
 │   ├── site.toml              site metadata + the list of projects
+│   ├── badges.toml            the projects' README badges
 │   ├── templates/             base.html (head, nav, waves, footer),
 │   │                          project.html, report.html, macros.html,
 │   │                          reports/ (tests and coverage pages)
@@ -35,8 +36,10 @@ HTML/CSS/JS: the site to publish.
 │   ├── posix-tracker/         POSIX conformance tracker (Jinja templates;
 │   │                          posix-data.toml names its reference data)
 │   ├── datasets.py            fetches data sets kept outside git, checked by sha256
+│   ├── lcov.py                lcov tracefile reader
+│   ├── badges/                SVG badges (svg, icons, palette, kinds)
 │   └── hajlibc/               data.js, tests, coverage and docs pages
-│                              (model, inputs, lcov, docs, pages,
+│                              (model, inputs, docs, pages,
 │                              tests_pages, coverage_pages)
 ├── external/                  git submodules: the projects the site reports on
 │   ├── hajlibc/               github.com/openhaj/hajlibc (branch dev)
@@ -88,6 +91,7 @@ Steps, in order:
 | `posix` | fetches the POSIX reference data, extracts every release tag (`v*`) and `HEAD` of hajlibc, scans them against POSIX.1-2024 | `dist/projects/hajlibc/posix/` |
 | `tests` | runs blåsix on hajlibc: a normal run (probes) and a coverage run | `.build/blasix/` |
 | `hajlibc` | reads the above and the headers' doc comments | `dist/projects/hajlibc/{data.js,tests,coverage,docs}` |
+| `badges` | draws the badges of `src/badges.toml` from the above | `dist/assets/<project>/*.svg` |
 
 The reports, under `dist/projects/hajlibc/`:
 
@@ -137,11 +141,40 @@ All the Python is typed and checked in strict mode (`pyrightconfig.json`,
 with `type: ignore` comments disabled): run `pyright` (or `basedpyright`)
 at the root. `typings/` holds stubs for the part of pycparser used.
 
+## Badges
+
+`src/badges.toml` describes SVG badges for the projects' READMEs; the
+`badges` step draws them into `dist/assets/<project>/<name>.svg`, and the
+project's page shows them under its title. One table per badge:
+
+```toml
+[hajlibc.coverage]                 # -> dist/assets/hajlibc/coverage.svg
+kind   = "coverage"                # static, git, percent, coverage or tests
+lcov   = "{build}/blasix/coverage/*/*/coverage/lcov.info"
+metric = "lines"
+link   = "projects/hajlibc/coverage/"
+```
+
+The kinds, their options and the path placeholders are listed at the top of
+the file. `git` shows the release when the checkout is on a tag, else its
+branch and commit; `percent` reads a score from any JSON file; `coverage`
+reads any lcov tracefile; `tests` adds up passed / failed / skipped counts
+from any JSON report. A badge whose input is missing is drawn grey ("not
+built"), never left out. Icons are in `tools/badges/icons.py`, colours in
+`tools/badges/palette.py`. From Python, without the file:
+`badges.render(badges.kinds.coverage(87.5))`.
+
+In a README, link the published image:
+
+```markdown
+[![tests](https://<site>/assets/hajlibc/tests.svg)](https://<site>/projects/hajlibc/tests/)
+```
+
 ## Templates
 
 Every page extends `src/templates/base.html` (head, navigation, waves,
 footer), so the shared markup exists once. Templates get `site`, `projects`
-and `STATUS` from `site.toml`, `root` (relative path to the site root) and,
+and `STATUS` from `site.toml`, `BADGES` from `badges.toml`, `root` (relative path to the site root) and,
 under `projects/<slug>/`, that `project`.
 
 A project page only holds what is specific to it:

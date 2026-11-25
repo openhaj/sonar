@@ -9,10 +9,10 @@
     python3 main.py steps                 list the build steps
 
 Layout:
-    src/        hand-written site: site.toml (projects), templates/ (layouts),
+    src/        hand-written site: site.toml (projects), badges.toml, templates/ (layouts),
                 pages/ (one template per page), assets/ (css, images),
                 ts/ (TypeScript: one bundle per entry in ts/entries/)
-    tools/      render.py (templates) and generators (POSIX tracker, hajlibc pages)
+    tools/      render.py (templates) and generators (POSIX tracker, hajlibc pages, badges)
     external/   git submodules of the projects the site reports on
     .build/     intermediate files (tool caches, test runs)   - not committed
     dist/       the finished site, ready to publish            - not committed
@@ -45,6 +45,7 @@ ROOT = Path(__file__).resolve().parent
 @dataclass(frozen=True)
 class Paths:
     src: Path = ROOT / "src"
+    badges: Path = ROOT / "src" / "badges.toml"
     dist: Path = ROOT / "dist"
     build: Path = ROOT / ".build"
     venv: Path = ROOT / ".venv"
@@ -234,6 +235,16 @@ def build_hajlibc() -> None:
         warn=functools.partial(warn, "hajlibc"),
     )
     log("hajlibc", ", ".join(written))
+
+
+@step("badges", "README badges of src/badges.toml -> dist/assets/<project>/*.svg")
+def build_badges() -> None:
+    # after the steps whose results they show (posix, tests, hajlibc)
+    from tools import badges
+    written = badges.build(P.badges, P.dist, {
+        "root": ROOT, "build": P.build, "dist": P.dist, "hajlibc": P.hajlibc, "blasix": P.blasix,
+    }, functools.partial(warn, "badges"))
+    log("badges", f"{len(written)} badges -> {P.dist.relative_to(ROOT)}/assets/")
 
 
 # ============================================================================

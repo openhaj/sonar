@@ -1,0 +1,50 @@
+# Badges for the projects' READMEs, built by main.py (step `badges`) into
+# dist/assets/<project>/<name>.svg, and shown at the top of the project's page.
+#
+#   [<project>.<name>]   one table per badge, in display order
+#   kind                 static | git | percent | coverage | tests
+#   label, icon, color   optional (icons: tools/badges/icons.py,
+#                        colours: tools/badges/palette.py or "#rrggbb")
+#   link                 optional: where it leads on the site (from its root)
+#
+# Kinds and their options:
+#   static    value
+#   git       repo; tags (pattern of release tags, default "v*")
+#             -> the release when the checkout is on a tag, else branch + commit
+#   percent   source (JSON) and value (a field; max = 100 by default),
+#             or done + total; decimals, bar (progress bar, default true)
+#   coverage  lcov (tracefile); metric = lines | functions | branches;
+#             under (count only the files in this directory)
+#   tests     source (JSON); passed, failed, skipped: a field or a list of
+#             fields added up
+#
+# Paths: {root} {build} {dist} {hajlibc} {blasix}; a glob reads the most
+# recent match. Fields: dotted paths, list indexes allowed ("versions.-1.percent").
+
+[hajlibc.version]
+kind = "git"
+repo = "{hajlibc}"
+link = "projects/hajlibc/"
+
+[hajlibc.posix]
+kind   = "percent"
+label  = "POSIX.1-2024"
+icon   = "shield"
+source = "{dist}/projects/hajlibc/posix/summary.json"
+value  = "versions.-1.percent"            # the last version scanned: HEAD
+link   = "projects/hajlibc/posix/"
+
+[hajlibc.tests]
+kind    = "tests"
+source  = "{build}/blasix/run/*/*/results.json"
+passed  = "summary.pass"
+failed  = ["summary.fail", "summary.crash", "summary.timeout", "summary.error"]
+skipped = ["summary.skip", "summary.unimplemented"]
+link    = "projects/hajlibc/tests/"
+
+[hajlibc.coverage]
+kind   = "coverage"
+lcov   = "{build}/blasix/coverage/*/*/coverage/lcov.info"
+metric = "lines"
+under  = "{hajlibc}"
+link   = "projects/hajlibc/coverage/"

@@ -23,7 +23,7 @@ from datetime import datetime, timezone
 from pathlib import Path
 from typing import TYPE_CHECKING, Callable
 
-from . import lcov
+from tools import lcov
 from .coverage_pages import coverage_category, coverage_file, coverage_index, file_page
 from .docs import load_docs
 from .inputs import load_coverage, load_posix, load_tests, repo_info, slug

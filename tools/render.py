@@ -8,6 +8,7 @@
 
 Every template gets:
     site, STATUS, projects   from site.toml
+    BADGES                   from badges.toml: each project's badges (tools/badges)
     root                     relative path to the site root ("./", "../../", ...)
     project                  on projects/<slug>/... pages, that project's entry
 """
@@ -20,6 +21,8 @@ from pathlib import Path
 from typing import Any, Literal, TypedDict, cast
 
 from jinja2 import Environment, FileSystemLoader, StrictUndefined, select_autoescape
+
+from tools import badges
 
 Status = Literal["idea", "wip", "paused", "stable", "archived"]
 
@@ -96,7 +99,8 @@ class Site:
         # available in every template, including imported macros (jinja2 types
         # globals by its default values, hence the cast)
         cast("MutableMapping[str, object]", self.env.globals).update(
-            site=self.site, STATUS=statuses, projects=self.projects)
+            site=self.site, STATUS=statuses, projects=self.projects,
+            BADGES=badges.catalog(src / "badges.toml"))
 
     # ----- paths -----
 

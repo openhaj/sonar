@@ -13,7 +13,7 @@ from datetime import datetime, timezone
 from pathlib import Path
 from typing import Any, Callable, cast
 
-from . import lcov
+from tools import lcov
 from .model import (
     CategoryCoverage, CoverageReport, FileCoverage, FunctionCoverage, HeaderRow, Interface, Leak,
     PosixSummary, Ratio, RepoInfo, TestRecord, TestReport, UnitFailure,
